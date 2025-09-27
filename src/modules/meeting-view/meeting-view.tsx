@@ -1,10 +1,9 @@
 "use client"
 
-import { type FC, useMemo } from "react"
+import { useMemo, type FC } from "react"
 import { useRoom } from "../../hooks/use-meeting"
-import type { MeetingViewProps } from "./meeting-view.types"
 import { ParticipantView } from "../participant-view"
-import { ControlBar } from "../control-bar"
+import type { MeetingViewProps } from "./meeting-view.types"
 
 export const MeetingView: FC<MeetingViewProps> = ({ onLeave }) => {
   const { participants, localParticipant } = useRoom()
@@ -70,7 +69,7 @@ export const MeetingView: FC<MeetingViewProps> = ({ onLeave }) => {
         ))}
       </div>
 
-      <ControlBar onLeave={onLeave} />
+  
     </div>
   )
 }
