@@ -174,9 +174,9 @@ export const ChatSidebar: FC = () => {
             ) : (
               allParticipants.map((participant) => {
                 const isLocal = participant.id === localParticipant?.id
-                const displayName = participant.displayName || participant.name || 'Unknown'
+                const displayName = participant.displayName
                 const isMicOn = participant.micOn
-                const isCameraOn = participant.camOn
+                const isCameraOn = participant.webcamOn
                 
                 return (
                   <div key={participant.id} className="flex items-center gap-3">
