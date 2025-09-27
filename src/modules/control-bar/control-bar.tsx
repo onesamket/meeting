@@ -161,7 +161,7 @@ export const ControlBar: FC<ControlBarProps> = ({ onLeave }) => {
   ]
 
   return (
-    <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2">
+    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
       <div className="flex items-center gap-2 bg-white rounded-full px-4 py-3 shadow-lg border border-gray-200">
         {controls.map((ctrl) => (
           <span key={ctrl.key}>{ctrl.render()}</span>

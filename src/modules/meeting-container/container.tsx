@@ -51,7 +51,7 @@ export const Container: FC<ContainerProps> = ({ onMeetingLeave, onNavigateToDash
           />
 
           <div className="flex h-[calc(100vh-120px)]">
-            <div className="flex-1 p-6">
+            <div className="flex-1 p-4">
               <MeetingView
                 meetingId={meetingId}
                 onLeave={onNavigateToDashboard || (() => console.log("Navigate to dashboard"))}
