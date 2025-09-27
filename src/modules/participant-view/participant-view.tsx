@@ -1,8 +1,8 @@
 'use client';
 
 import { useParticipant } from '@videosdk.live/react-sdk';
-import { MicOff } from 'lucide-react';
-import { useCallback, useEffect, useRef, type FC } from 'react';
+import { Mic, MicOff, Pin, PinOff } from 'lucide-react';
+import { useCallback, useEffect, useRef, type FC, useState } from 'react';
 
 import type {
   MediaRef,
@@ -17,6 +17,8 @@ export const ParticipantView: FC<ParticipantViewProps> = ({
   const micRef = useRef<HTMLAudioElement | null>(null);
   const webcamRef = useRef<HTMLVideoElement | null>(null);
   const screenShareRef = useRef<HTMLVideoElement | null>(null);
+  const [isPinned, setIsPinned] = useState(false);
+  const [showControls, setShowControls] = useState(false);
 
   const {
     webcamStream,
@@ -83,15 +85,16 @@ export const ParticipantView: FC<ParticipantViewProps> = ({
 
   const getAvatarColor = useCallback((): string => {
     const name = getDisplayName();
+    // Google Meet style subtle colors
     const colors = [
-      'bg-gradient-to-br from-blue-500 to-blue-600',
-      'bg-gradient-to-br from-green-500 to-green-600', 
-      'bg-gradient-to-br from-purple-500 to-purple-600',
-      'bg-gradient-to-br from-pink-500 to-pink-600',
-      'bg-gradient-to-br from-indigo-500 to-indigo-600',
-      'bg-gradient-to-br from-red-500 to-red-600',
-      'bg-gradient-to-br from-yellow-500 to-yellow-600',
-      'bg-gradient-to-br from-teal-500 to-teal-600',
+      'bg-gradient-to-br from-slate-500 to-slate-600',
+      'bg-gradient-to-br from-gray-500 to-gray-600', 
+      'bg-gradient-to-br from-zinc-500 to-zinc-600',
+      'bg-gradient-to-br from-neutral-500 to-neutral-600',
+      'bg-gradient-to-br from-stone-500 to-stone-600',
+      'bg-gradient-to-br from-blue-400 to-blue-500',
+      'bg-gradient-to-br from-indigo-400 to-indigo-500',
+      'bg-gradient-to-br from-violet-400 to-violet-500',
     ];
     const hash = name.split('').reduce((a, b) => {
       a = ((a << 5) - a) + b.charCodeAt(0);
@@ -100,16 +103,15 @@ export const ParticipantView: FC<ParticipantViewProps> = ({
     return colors[Math.abs(hash) % colors.length];
   }, [getDisplayName]);
 
-  const getParticipantLabel = useCallback((): string => {
-    const name = getDisplayName();
-    return isLocal ? `${name} (You)` : name;
-  }, [getDisplayName, isLocal]);
+
 
   return (
     <div
-      className={`relative aspect-video rounded-lg border-2 bg-gray-800 ${
+      className={`relative aspect-video rounded-lg border-2 bg-gray-800 group ${
         isActiveSpeaker ? 'border-blue-500 shadow-lg' : 'border-transparent'
-      }`}
+      } ${isPinned ? 'ring-2 ring-yellow-400 ring-opacity-50' : ''}`}
+      onMouseEnter={() => setShowControls(true)}
+      onMouseLeave={() => setShowControls(false)}
     >
       {screenShareOn ? (
         <video
@@ -117,7 +119,7 @@ export const ParticipantView: FC<ParticipantViewProps> = ({
           autoPlay
           playsInline
           muted
-          className="h-full w-full object-contain"
+          className="h-full w-full object-contain  rounded-lg "
         />
       ) : webcamOn ? (
         <video
@@ -129,22 +131,43 @@ export const ParticipantView: FC<ParticipantViewProps> = ({
         />
       ) : (
         <div className={`flex h-full items-center justify-center ${getAvatarColor()}`}>
-          <div className="flex flex-col items-center gap-2">
-            <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
-              <span className="text-3xl font-bold text-white">{getInitials()}</span>
-            </div>
-            <div className="text-white/80 text-sm font-medium">
-              {getDisplayName()}
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm border border-white/20">
+              <span className="text-2xl font-semibold text-white">{getInitials()}</span>
             </div>
           </div>
         </div>
-      )}      
+      )}
+      
+      {/* Pin Button */}
+      {showControls && !isLocal && (
+        <div className="absolute top-2 right-2">
+          <button
+            onClick={() => setIsPinned(!isPinned)}
+            className={`rounded-full p-1.5 transition-all duration-200 ${
+              isPinned 
+                ? 'bg-yellow-500 text-white' 
+                : 'bg-black/60 text-white hover:bg-black/80'
+            }`}
+            title={isPinned ? 'Unpin participant' : 'Pin participant'}
+          >
+            {isPinned ? (
+              <PinOff className="w-3 h-3" />
+            ) : (
+              <Pin className="w-3 h-3" />
+            )}
+          </button>
+        </div>
+      )}
+      
       {/* Microphone Status Indicator */}
       <div className="absolute bottom-2 right-2">
         <div className={`rounded-full p-1 ${
-          !micOn && 'bg-red-500'
+          micOn ? 'bg-green-500' : 'bg-red-500'
         }`}>
-          {!micOn&& (
+          {micOn ? (
+            <Mic className="w-3 h-3 text-white" />
+          ) : (
             <MicOff className="w-3 h-3 text-white" />
           )}
         </div>
