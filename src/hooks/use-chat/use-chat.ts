@@ -71,24 +71,43 @@ function useChatForTopic(
   topic: string,
   options: UseChatOptions = {}
 ): UseChatResult {
+  console.log(`Initializing chat for topic: ${topic}`);
+  
   const { messages, publish } = usePubSub(topic, {
-    onMessageReceived: options.onMessageReceived,
-    onOldMessagesReceived: options.onOldMessagesReceived
+    onMessageReceived: (msg) => {
+      console.log(`Message received on topic ${topic}:`, msg);
+      options.onMessageReceived?.(msg);
+    },
+    onOldMessagesReceived: (msgs) => {
+      console.log(`Old messages received on topic ${topic}:`, msgs);
+      options.onOldMessagesReceived?.(msgs);
+    }
   });
+
+  // Debug: Log messages when they change
+  console.log(`Messages for topic ${topic}:`, messages);
 
   /**
    * Send a chat message (optionally with payload and options)
    */
   const sendMessage = useCallback(
     (message: string, opts?: SendMessageOptions, payload?: object) => {
+      console.log(`Sending message to topic ${topic}:`, message, opts, payload);
+      
       // Ensure persist is always a boolean
       const options = {
         persist: opts?.persist ?? true,
         ...(opts?.sendOnly ? { sendOnly: opts.sendOnly } : {})
       };
-      publish(message, options, payload);
+      
+      try {
+        publish(message, options, payload);
+        console.log(`Message published successfully to topic ${topic}`);
+      } catch (error) {
+        console.error(`Failed to publish message to topic ${topic}:`, error);
+      }
     },
-    [publish]
+    [publish, topic]
   );
 
   /**

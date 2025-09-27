@@ -20,13 +20,21 @@ export const ChatSidebar: FC = () => {
   // Get real meeting data
   const { participants, localParticipant } = useRoom()
   
-  // Get real chat data
+  // Get real chat data using VideoSDK pub/sub
   const { messages, sendMessage } = useChat({
     onMessageReceived: (msg) => {
-      // Optional: Add notification or sound here
       console.log('New message received:', msg)
+      // Optional: Add notification or sound here
+    },
+    onOldMessagesReceived: (msgs) => {
+      console.log('Old messages received:', msgs)
     }
   })
+
+  // Debug: Log messages to see if they're being received
+  useEffect(() => {
+    console.log('Chat messages updated:', messages)
+  }, [messages])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -38,6 +46,7 @@ export const ChatSidebar: FC = () => {
 
   const handleSendMessage = () => {
     if (newMessage.trim()) {
+      console.log('Sending message:', newMessage.trim())
       sendMessage(newMessage.trim())
       setNewMessage("")
     }
@@ -58,10 +67,10 @@ export const ChatSidebar: FC = () => {
       .toUpperCase()
   }
 
-  // Convert VideoSDK participants to our interface
+  // Convert VideoSDK participants Map to array and include local participant
   const allParticipants = [
     localParticipant,
-    ...Object.values(participants || {})
+    ...Array.from(participants.values())
   ].filter(Boolean)
 
   return (
@@ -74,6 +83,11 @@ export const ChatSidebar: FC = () => {
           }`}
         >
           Chat
+          {messages.length > 0 && (
+            <Badge variant="secondary" className="ml-2 text-xs">
+              {messages.length}
+            </Badge>
+          )}
         </button>
         <button
           onClick={() => setActiveTab("attendees")}
@@ -95,6 +109,7 @@ export const ChatSidebar: FC = () => {
               {messages.length === 0 ? (
                 <div className="text-center text-gray-500 py-8">
                   <p>No messages yet. Start the conversation!</p>
+                  <p className="text-xs mt-2">Type a message below to begin chatting.</p>
                 </div>
               ) : (
                 messages.map((message) => (
@@ -167,7 +182,7 @@ export const ChatSidebar: FC = () => {
                   <div key={participant.id} className="flex items-center gap-3">
                     <div className="relative">
                       <Avatar className="w-8 h-8">
-                        <AvatarImage src={participant.avatar || "/placeholder.svg"} />
+                        <AvatarImage src={participant.metaData?.avatar || "/placeholder.svg"} />
                         <AvatarFallback className="text-xs">
                           {getInitials(displayName)}
                         </AvatarFallback>
