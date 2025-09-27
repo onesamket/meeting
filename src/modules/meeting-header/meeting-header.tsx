@@ -4,19 +4,18 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
 import { useRoom } from "@/hooks/use-meeting"
-import { 
-  MessageCircle, 
-  Users, 
-  Share2, 
-  Copy, 
-  Clock, 
-  Video,
+import {
+  Check,
+  Clock,
+  Copy,
+  MessageCircle,
   Mic,
   MicOff,
-  VideoOff,
   MoreVertical,
-  Settings,
-  PhoneOff
+  Share2,
+  Users,
+  Video,
+  VideoOff
 } from "lucide-react"
 import { useState, type FC } from "react"
 import type { MeetingHeaderProps } from "./meeting-header.types"
@@ -29,6 +28,10 @@ export const MeetingHeader: FC<MeetingHeaderProps> = ({
   const { meetingId, recordingState, toggleMic, toggleWebcam, localParticipant } = useRoom()
   const { toast } = useToast()
   const [showShareMenu, setShowShareMenu] = useState(false)
+  const [copiedStates, setCopiedStates] = useState<{meetingLink: boolean, meetingId: boolean}>({
+    meetingLink: false,
+    meetingId: false
+  })
 
   const handleShareMeeting = async () => {
     const meetingUrl = `${window.location.origin}${window.location.pathname}?meeting=${meetingId}`
@@ -42,10 +45,14 @@ export const MeetingHeader: FC<MeetingHeaderProps> = ({
         })
       } else {
         await navigator.clipboard.writeText(meetingUrl)
+        setCopiedStates(prev => ({ ...prev, meetingLink: true }))
         toast({
           title: "Meeting link copied!",
           description: "The meeting link has been copied to your clipboard.",
         })
+        setTimeout(() => {
+          setCopiedStates(prev => ({ ...prev, meetingLink: false }))
+        }, 2000)
       }
     } catch (error) {
       console.error('Error sharing meeting:', error)
@@ -61,10 +68,14 @@ export const MeetingHeader: FC<MeetingHeaderProps> = ({
   const handleCopyMeetingId = async () => {
     try {
       await navigator.clipboard.writeText(meetingId || '')
+      setCopiedStates(prev => ({ ...prev, meetingId: true }))
       toast({
         title: "Meeting ID copied!",
         description: "The meeting ID has been copied to your clipboard.",
       })
+      setTimeout(() => {
+        setCopiedStates(prev => ({ ...prev, meetingId: false }))
+      }, 2000)
     } catch (error) {
       console.error('Error copying meeting ID:', error)
       toast({
@@ -73,6 +84,7 @@ export const MeetingHeader: FC<MeetingHeaderProps> = ({
         variant: "destructive"
       })
     }
+    setShowShareMenu(false)
   }
 
   const handleToggleMic = () => {
@@ -112,7 +124,11 @@ export const MeetingHeader: FC<MeetingHeaderProps> = ({
               onClick={handleCopyMeetingId}
               className="p-1 h-6 w-6 hover:bg-gray-200"
             >
-              <Copy className="w-3 h-3" />
+              {copiedStates.meetingId ? (
+                <Check className="w-3 h-3 text-green-600" />
+              ) : (
+                <Copy className="w-3 h-3" />
+              )}
             </Button>
           </div>
         )}
@@ -146,9 +162,9 @@ export const MeetingHeader: FC<MeetingHeaderProps> = ({
             variant="ghost"
             size="sm"
             onClick={handleToggleWebcam}
-            className={`p-2 ${localParticipant?.camOn ? 'text-green-600' : 'text-red-600'}`}
+            className={`p-2 ${localParticipant?.webcamOn ? 'text-green-600' : 'text-red-600'}`}
           >
-            {localParticipant?.camOn ? (
+            {localParticipant?.webcamOn ? (
               <Video className="w-4 h-4" />
             ) : (
               <VideoOff className="w-4 h-4" />
@@ -179,7 +195,11 @@ export const MeetingHeader: FC<MeetingHeaderProps> = ({
                     className="w-full justify-start"
                     variant="outline"
                   >
-                    <Share2 className="w-4 h-4 mr-2" />
+                    {copiedStates.meetingLink ? (
+                      <Check className="w-4 h-4 mr-2 text-green-600" />
+                    ) : (
+                      <Share2 className="w-4 h-4 mr-2" />
+                    )}
                     Copy meeting link
                   </Button>
                   
@@ -188,7 +208,11 @@ export const MeetingHeader: FC<MeetingHeaderProps> = ({
                     className="w-full justify-start"
                     variant="outline"
                   >
-                    <Copy className="w-4 h-4 mr-2" />
+                    {copiedStates.meetingId ? (
+                      <Check className="w-4 h-4 mr-2 text-green-600" />
+                    ) : (
+                      <Copy className="w-4 h-4 mr-2" />
+                    )}
                     Copy meeting ID
                   </Button>
                 </div>
