@@ -8,20 +8,20 @@ const loaderVariants = cva(
     variants: {
       variant: {
         spinner: "animate-spin",
-        dots: "gap-1",
+        dots: "gap-2",
         pulse: "animate-pulse",
-        bounce: "gap-1",
+        bounce: "gap-2",
         wave: "gap-1",
-        bars: "gap-1",
+        bars: "gap-2",
         ring: "relative",
         gradient: "relative overflow-hidden",
       },
       size: {
-        sm: "w-4 h-4",
-        md: "w-6 h-6", 
-        lg: "w-8 h-8",
-        xl: "w-12 h-12",
-        "2xl": "w-16 h-16",
+        sm: "w-6 h-6",
+        md: "w-8 h-8", 
+        lg: "w-12 h-12",
+        xl: "w-16 h-16",
+        "2xl": "w-20 h-20",
       },
       color: {
         primary: "text-primary",
@@ -37,13 +37,14 @@ const loaderVariants = cva(
     },
     defaultVariants: {
       variant: "spinner",
-      size: "md",
+      size: "lg",
       color: "primary",
     },
   }
 )
 
-export interface LoaderProps
+export interface LoaderProps 
+
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof loaderVariants> {
   text?: string
@@ -61,16 +62,16 @@ const Loader = React.forwardRef<HTMLDivElement, LoaderProps>(
         
         case "dots":
           return (
-            <div className="flex gap-1">
+            <div className="flex gap-2">
               {[0, 1, 2].map((i) => (
                 <div
                   key={i}
                   className={cn(
                     "rounded-full bg-current animate-pulse",
-                    size === "sm" ? "w-1 h-1" : 
-                    size === "md" ? "w-2 h-2" :
-                    size === "lg" ? "w-3 h-3" :
-                    size === "xl" ? "w-4 h-4" : "w-5 h-5"
+                    size === "sm" ? "w-2 h-2" : 
+                    size === "md" ? "w-3 h-3" :
+                    size === "lg" ? "w-4 h-4" :
+                    size === "xl" ? "w-5 h-5" : "w-6 h-6"
                   )}
                   style={{
                     animationDelay: `${i * 0.2}s`,
@@ -88,16 +89,16 @@ const Loader = React.forwardRef<HTMLDivElement, LoaderProps>(
         
         case "bounce":
           return (
-            <div className="flex gap-1">
+            <div className="flex gap-2">
               {[0, 1, 2].map((i) => (
                 <div
                   key={i}
                   className={cn(
                     "rounded-full bg-current animate-bounce",
-                    size === "sm" ? "w-1 h-1" : 
-                    size === "md" ? "w-2 h-2" :
-                    size === "lg" ? "w-3 h-3" :
-                    size === "xl" ? "w-4 h-4" : "w-5 h-5"
+                    size === "sm" ? "w-2 h-2" : 
+                    size === "md" ? "w-3 h-3" :
+                    size === "lg" ? "w-4 h-4" :
+                    size === "xl" ? "w-5 h-5" : "w-6 h-6"
                   )}
                   style={{
                     animationDelay: `${i * 0.1}s`,
@@ -116,10 +117,10 @@ const Loader = React.forwardRef<HTMLDivElement, LoaderProps>(
                   key={i}
                   className={cn(
                     "bg-current rounded-sm animate-pulse",
-                    size === "sm" ? "w-1 h-3" : 
-                    size === "md" ? "w-1 h-4" :
-                    size === "lg" ? "w-1 h-6" :
-                    size === "xl" ? "w-1 h-8" : "w-1 h-10"
+                    size === "sm" ? "w-1.5 h-6" : 
+                    size === "md" ? "w-2 h-8" :
+                    size === "lg" ? "w-2 h-10" :
+                    size === "xl" ? "w-3 h-12" : "w-3 h-16"
                   )}
                   style={{
                     animationDelay: `${i * 0.1}s`,
@@ -132,16 +133,16 @@ const Loader = React.forwardRef<HTMLDivElement, LoaderProps>(
         
         case "bars":
           return (
-            <div className="flex gap-1">
+            <div className="flex gap-2">
               {[0, 1, 2].map((i) => (
                 <div
                   key={i}
                   className={cn(
                     "bg-current rounded-sm animate-pulse",
-                    size === "sm" ? "w-1 h-4" : 
-                    size === "md" ? "w-1 h-6" :
-                    size === "lg" ? "w-1 h-8" :
-                    size === "xl" ? "w-1 h-10" : "w-1 h-12"
+                    size === "sm" ? "w-2 h-6" : 
+                    size === "md" ? "w-3 h-8" :
+                    size === "lg" ? "w-4 h-10" :
+                    size === "xl" ? "w-5 h-12" : "w-6 h-16"
                   )}
                   style={{
                     animationDelay: `${i * 0.2}s`,
