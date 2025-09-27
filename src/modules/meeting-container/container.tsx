@@ -10,7 +10,7 @@ import ChatSidebar from "../siderbar/chat/chat"
 import type { ContainerProps } from "./container.types"
 
 export const Container: FC<ContainerProps> = ({ onMeetingLeave, onNavigateToDashboard }) => {
-  const { joinState, error, connectionState, meetingId, participants } = useRoom({
+  const { joinState, error, connectionState, meetingId, participants, localParticipant } = useRoom({
     onLeave: onMeetingLeave,
     onError: (error: unknown) => {
       console.error("Meeting error:", error)
@@ -19,7 +19,6 @@ export const Container: FC<ContainerProps> = ({ onMeetingLeave, onNavigateToDash
       console.log("Connection state:", state)
     },
   })
-
 
   const [showChat, setShowChat] = useState(true)
 
@@ -39,7 +38,6 @@ export const Container: FC<ContainerProps> = ({ onMeetingLeave, onNavigateToDash
 
   const participantCount = participants.size
 
-
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="max-w-7xl mx-auto">
@@ -48,6 +46,8 @@ export const Container: FC<ContainerProps> = ({ onMeetingLeave, onNavigateToDash
             onToggleChat={() => setShowChat(!showChat)}
             onToggleParticipants={() => {}}
             participantCount={participantCount}
+            meetingId={meetingId}
+            onLeave={onNavigateToDashboard}
           />
 
           <div className="flex h-[calc(100vh-120px)]">

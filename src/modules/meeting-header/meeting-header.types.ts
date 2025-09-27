@@ -3,4 +3,6 @@ export interface MeetingHeaderProps {
   onToggleChat?: () => void
   onToggleParticipants?: () => void
   participantCount?: number
+  meetingId?: string
+  onLeave?: () => void
 }
