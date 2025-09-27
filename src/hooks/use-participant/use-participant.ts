@@ -1,7 +1,7 @@
 import { useParticipant as useSDKParticipant } from '@videosdk.live/react-sdk';
 import type { Participant } from '@videosdk.live/react-sdk/dist/types/participant';
 import { useCallback, useMemo } from 'react';
-import {
+import type{
   UseParticipantOptions,
   UseParticipantResult
 } from './use-participant.types';

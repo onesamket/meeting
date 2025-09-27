@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { usePubSub } from '@videosdk.live/react-sdk';
-import {
+import type{
   ChatMessage,
   SendMessageOptions,
   UseChatOptions,

@@ -2,98 +2,31 @@
 
 import type React from "react"
 
-import { type FC, useState, useRef, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Send, Download, Paperclip } from "lucide-react"
-
-interface ChatMessage {
-  id: string
-  senderId: string
-  senderName: string
-  message: string
-  timestamp: Date
-  type: "text" | "file"
-  fileUrl?: string
-  fileName?: string
-}
-
-interface Participant {
-  id: string
-  name: string
-  avatar?: string
-  isOnline: boolean
-}
-
-// Mock data matching the design
-const mockParticipants: Participant[] = [
-  { id: "1", name: "Rick Grimes", avatar: "/placeholder-user.jpg", isOnline: true },
-  { id: "2", name: "Emma Watson", avatar: "/placeholder-user.jpg", isOnline: true },
-  { id: "3", name: "Kristin Watson", avatar: "/placeholder-user.jpg", isOnline: true },
-  { id: "4", name: "Jane Cooper", avatar: "/placeholder-user.jpg", isOnline: true },
-  { id: "5", name: "Robert Fox", avatar: "/placeholder-user.jpg", isOnline: true },
-]
-
-const mockMessages: ChatMessage[] = [
-  {
-    id: "1",
-    senderId: "1",
-    senderName: "Rick Grimes",
-    message: "Hi Team 👋",
-    timestamp: new Date(Date.now() - 300000),
-    type: "text",
-  },
-  {
-    id: "2",
-    senderId: "2",
-    senderName: "Emma Watson",
-    message: "Hi Guys Can 😊, you hear me?",
-    timestamp: new Date(Date.now() - 240000),
-    type: "text",
-  },
-  {
-    id: "3",
-    senderId: "3",
-    senderName: "Kristin Watson",
-    message: "Hi Everyone!\nLet get started it, dont forget to make a note. 📝",
-    timestamp: new Date(Date.now() - 180000),
-    type: "text",
-  },
-  {
-    id: "4",
-    senderId: "4",
-    senderName: "Jane Cooper",
-    message: "Before it, i share the main document",
-    timestamp: new Date(Date.now() - 120000),
-    type: "text",
-  },
-  {
-    id: "5",
-    senderId: "4",
-    senderName: "Jane Cooper",
-    message: "New Template.fig",
-    timestamp: new Date(Date.now() - 60000),
-    type: "file",
-    fileName: "New Template.fig",
-  },
-  {
-    id: "6",
-    senderId: "5",
-    senderName: "Robert Fox",
-    message: "Before it, i share the main document",
-    timestamp: new Date(Date.now() - 30000),
-    type: "text",
-  },
-]
+import { formatChatTimestamp, getChatSenderName, useChat } from "@/hooks/use-chat"
+import { useRoom } from "@/hooks/use-meeting"
+import { Paperclip, Send } from "lucide-react"
+import { useEffect, useRef, useState, type FC } from "react"
 
 export const ChatSidebar: FC = () => {
-  const [messages, setMessages] = useState<ChatMessage[]>(mockMessages)
   const [newMessage, setNewMessage] = useState("")
   const [activeTab, setActiveTab] = useState<"chat" | "attendees">("chat")
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Get real meeting data
+  const { participants, localParticipant } = useRoom()
+  
+  // Get real chat data
+  const { messages, sendMessage } = useChat({
+    onMessageReceived: (msg) => {
+      // Optional: Add notification or sound here
+      console.log('New message received:', msg)
+    }
+  })
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -105,15 +38,7 @@ export const ChatSidebar: FC = () => {
 
   const handleSendMessage = () => {
     if (newMessage.trim()) {
-      const message: ChatMessage = {
-        id: Date.now().toString(),
-        senderId: "current-user",
-        senderName: "You",
-        message: newMessage,
-        timestamp: new Date(),
-        type: "text",
-      }
-      setMessages([...messages, message])
+      sendMessage(newMessage.trim())
       setNewMessage("")
     }
   }
@@ -125,14 +50,6 @@ export const ChatSidebar: FC = () => {
     }
   }
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    })
-  }
-
   const getInitials = (name: string) => {
     return name
       .split(" ")
@@ -140,6 +57,12 @@ export const ChatSidebar: FC = () => {
       .join("")
       .toUpperCase()
   }
+
+  // Convert VideoSDK participants to our interface
+  const allParticipants = [
+    localParticipant,
+    ...Object.values(participants || {})
+  ].filter(Boolean)
 
   return (
     <div className="h-full flex flex-col bg-white">
@@ -160,7 +83,7 @@ export const ChatSidebar: FC = () => {
         >
           Attendees
           <Badge variant="secondary" className="ml-2 text-xs">
-            {mockParticipants.length}
+            {allParticipants.length}
           </Badge>
         </button>
       </div>
@@ -169,33 +92,35 @@ export const ChatSidebar: FC = () => {
         <>
           <ScrollArea className="flex-1 p-4">
             <div className="space-y-4">
-              {messages.map((message) => (
-                <div key={message.id} className="flex items-start gap-3">
-                  <Avatar className="w-8 h-8 flex-shrink-0">
-                    <AvatarImage src="/placeholder-user.jpg" />
-                    <AvatarFallback className="text-xs">{getInitials(message.senderName)}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium text-sm text-gray-900">{message.senderName}</span>
-                      <span className="text-xs text-gray-500">{formatTime(message.timestamp)}</span>
-                    </div>
-                    {message.type === "file" ? (
-                      <div className="flex items-center gap-2 p-2 bg-gray-100 rounded-lg max-w-fit">
-                        <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
-                          <Paperclip className="w-4 h-4 text-blue-600" />
-                        </div>
-                        <span className="text-sm font-medium">{message.fileName}</span>
-                        <Button size="sm" variant="ghost" className="p-1 h-6 w-6">
-                          <Download className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <p className="text-sm text-gray-700 whitespace-pre-wrap">{message.message}</p>
-                    )}
-                  </div>
+              {messages.length === 0 ? (
+                <div className="text-center text-gray-500 py-8">
+                  <p>No messages yet. Start the conversation!</p>
                 </div>
-              ))}
+              ) : (
+                messages.map((message) => (
+                  <div key={message.id} className="flex items-start gap-3">
+                    <Avatar className="w-8 h-8 flex-shrink-0">
+                      <AvatarImage src="/placeholder-user.jpg" />
+                      <AvatarFallback className="text-xs">
+                        {getInitials(getChatSenderName(message))}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-medium text-sm text-gray-900">
+                          {getChatSenderName(message)}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {formatChatTimestamp(message.timestamp)}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                        {message.message}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              )}
               <div ref={messagesEndRef} />
             </div>
           </ScrollArea>
@@ -227,22 +152,53 @@ export const ChatSidebar: FC = () => {
       ) : (
         <ScrollArea className="flex-1 p-4">
           <div className="space-y-3">
-            {mockParticipants.map((participant) => (
-              <div key={participant.id} className="flex items-center gap-3">
-                <div className="relative">
-                  <Avatar className="w-8 h-8">
-                    <AvatarImage src={participant.avatar || "/placeholder.svg"} />
-                    <AvatarFallback className="text-xs">{getInitials(participant.name)}</AvatarFallback>
-                  </Avatar>
-                  {participant.isOnline && (
-                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">{participant.name}</p>
-                </div>
+            {allParticipants.length === 0 ? (
+              <div className="text-center text-gray-500 py-8">
+                <p>No participants in the meeting</p>
               </div>
-            ))}
+            ) : (
+              allParticipants.map((participant) => {
+                const isLocal = participant.id === localParticipant?.id
+                const displayName = participant.displayName || participant.name || 'Unknown'
+                const isMicOn = participant.micOn
+                const isCameraOn = participant.camOn
+                
+                return (
+                  <div key={participant.id} className="flex items-center gap-3">
+                    <div className="relative">
+                      <Avatar className="w-8 h-8">
+                        <AvatarImage src={participant.avatar || "/placeholder.svg"} />
+                        <AvatarFallback className="text-xs">
+                          {getInitials(displayName)}
+                        </AvatarFallback>
+                      </Avatar>
+                      {/* Show online status for remote participants */}
+                      {!isLocal && (
+                        <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium text-gray-900">
+                          {displayName}
+                          {isLocal && <span className="text-xs text-gray-500 ml-1">(You)</span>}
+                        </p>
+                        <div className="flex gap-1">
+                          {/* Microphone status */}
+                          <div className={`w-2 h-2 rounded-full ${
+                            isMicOn ? 'bg-green-500' : 'bg-red-500'
+                          }`} title={isMicOn ? 'Microphone on' : 'Microphone off'} />
+                          {/* Camera status */}
+                          <div className={`w-2 h-2 rounded-full ${
+                            isCameraOn ? 'bg-green-500' : 'bg-red-500'
+                          }`} title={isCameraOn ? 'Camera on' : 'Camera off'} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })
+            )}
           </div>
         </ScrollArea>
       )}

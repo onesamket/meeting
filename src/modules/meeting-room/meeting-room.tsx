@@ -63,8 +63,9 @@ export const MeetingRoom = () => {
         name: username || 'Guest',
         mode
       }}
+      
       token={actualToken}
-      joinWithoutUserInteraction
+      joinWithoutUserInteraction={true}
     >
       <RoomProvider
         controlBarConfig={{
@@ -80,6 +81,7 @@ export const MeetingRoom = () => {
           more: true
         }}
         meetingId={meetingId}
+    
       >
         <Container
           meetingId={meetingId}

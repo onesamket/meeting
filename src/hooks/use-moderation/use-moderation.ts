@@ -62,7 +62,6 @@ export function useModeration(
       },
       onRecordingStarted: options.onRecordingStarted,
       onRecordingStopped: options.onRecordingStopped,
-      onChatMessage: options.onChatMessage
 
     });
 

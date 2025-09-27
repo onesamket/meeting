@@ -1,13 +1,12 @@
 "use client"
 
-import type { FC } from "react"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Maximize2, MessageCircle, Users } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { MessageCircle, Users } from "lucide-react"
+import type { FC } from "react"
 import type { MeetingHeaderProps } from "./meeting-header.types"
 
 export const MeetingHeader: FC<MeetingHeaderProps> = ({
-  onToggleFullscreen,
   onToggleChat,
   onToggleParticipants,
   participantCount,
@@ -23,12 +22,6 @@ export const MeetingHeader: FC<MeetingHeaderProps> = ({
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="sm" onClick={onToggleFullscreen} className="text-gray-600 hover:text-gray-900">
-          <Maximize2 className="w-4 h-4 mr-2" />
-          Full screen
-        </Button>
-      </div>
 
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="sm" onClick={onToggleChat} className="text-gray-600 hover:text-gray-900">
