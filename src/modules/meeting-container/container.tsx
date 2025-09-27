@@ -8,6 +8,7 @@ import { MeetingHeader } from "../meeting-header"
 import { MeetingView } from "../meeting-view/meeting-view"
 import ChatSidebar from "../siderbar/chat/chat"
 import type { ContainerProps } from "./container.types"
+import { ControlBar } from "../control-bar"
 
 export const Container: FC<ContainerProps> = ({ onMeetingLeave, onNavigateToDashboard }) => {
   const { joinState, error, connectionState, meetingId, participants, localParticipant } = useRoom({
@@ -39,8 +40,8 @@ export const Container: FC<ContainerProps> = ({ onMeetingLeave, onNavigateToDash
   const participantCount = participants.size
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="max-w-7xl mx-auto">
+    <div className="h-screen bg-gray-100">
+      <div className="max-w-7xl mx-auto relative">
         <div className="m-4 bg-white rounded-2xl shadow-xl border-4 border-gray-900 overflow-hidden">
           <MeetingHeader
             onToggleChat={() => setShowChat(!showChat)}
@@ -63,6 +64,13 @@ export const Container: FC<ContainerProps> = ({ onMeetingLeave, onNavigateToDash
                 <ChatSidebar />
               </div>
             )}
+          </div>
+        </div>
+        
+        {/* Centered Control Bar with container-like styling */}
+        <div className="absolute -bottom-9 left-1/2 transform -translate-x-1/2">
+          <div className="bg-white rounded-2xl shadow-xl border-4 border-gray-900 ">
+            <ControlBar onLeave={()=>{}} />
           </div>
         </div>
       </div>
